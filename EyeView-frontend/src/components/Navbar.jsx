@@ -41,7 +41,7 @@ const Navbar = ({ user, sidebarOpen, setSidebarOpen }) => {
         <div className="flex justify-between items-center w-11/12 max-w-7xl py-4 mx-auto">
           {/* Brand */}
           <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent hover:from-blue-300 hover:via-purple-300 hover:to-pink-300 transition-all duration-300">
-            eyeview.ai
+            RiskVision.ai
           </Link>
 
           {/* Desktop Navigation */}
@@ -170,7 +170,7 @@ const Navbar = ({ user, sidebarOpen, setSidebarOpen }) => {
             {/* Mobile Brand */}
             <div className="mb-12">
               <span className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                eyeview.ai
+                RiskVision.ai
               </span>
             </div>
 
