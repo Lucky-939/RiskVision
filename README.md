@@ -8,7 +8,7 @@
 [![OpenCV](https://img.shields.io/badge/OpenCV-Vision-27338e?style=flat-square&logo=opencv&logoColor=white)](https://opencv.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6-B73BFE?style=flat-square&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
-[![Firebase](https://img.shields.io/badge/Firebase-Storage%20%26%20Auth-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Database%20%26%20Storage-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Twilio](https://img.shields.io/badge/Twilio-SMS%20%26%20Calls-F22F46?style=flat-square&logo=twilio&logoColor=white)](https://www.twilio.com/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-CSS%204-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
@@ -18,7 +18,7 @@
 
 **RiskVision** (formerly EyeView) is a comprehensive, full-stack AI surveillance platform that performs real-time violence detection from live camera feeds using **YOLOv11n** deep learning models. 
 
-When a threat or violent behavior is detected, the system instantly auto-records the incident, stores the video evidence securely in **Firebase Cloud Storage**, and dispatches automated SMS and voice call alerts to authorities via **Twilio** — all monitored through a modern, responsive **React dashboard**.
+When a threat or violent behavior is detected, the system instantly auto-records the incident, stores the video evidence securely in **Supabase Cloud Storage**, logs the alert in a **PostgreSQL** database, and dispatches automated SMS and voice call alerts to authorities via **Twilio** — all monitored through a modern, responsive **React dashboard**.
 
 ---
 
@@ -27,11 +27,11 @@ When a threat or violent behavior is detected, the system instantly auto-records
 | Feature | Description |
 |---|---|
 | 🔍 **Real-Time AI Detection** | YOLOv11n-powered violence detection with low-latency video processing. |
-| 📹 **Auto-Evidence Capture** | Incident clips are recorded and uploaded to Firebase Cloud Storage instantly. |
+| 📹 **Auto-Evidence Capture** | Incident clips are recorded and uploaded to Supabase Cloud Storage instantly. |
 | 📲 **Instant SOS Alerts** | Twilio dispatches SMS and Voice Call emergency notifications to authorities. |
 | 📊 **Live Monitoring Dashboard** | Real-time React dashboard showing live feed, alerts, and incident history. |
-| 🎞️ **Incident History & Playback** | Full log of past detections with timestamps, clip playbacks, and auto-thumbnails. |
-| 🔐 **Secure Authentication** | Firebase JWT-based access control for dashboard operators. |
+| 🎞️ **Incident History & Playback** | Full log of past detections with timestamps, fast Supabase CDN playback, and auto-thumbnails. |
+| 🔐 **Secure Authentication** | Custom JWT-based access control for dashboard operators. |
 
 ---
 
@@ -50,7 +50,7 @@ When a threat or violent behavior is detected, the system instantly auto-records
 * **Axios** — HTTP client for backend API communication
 
 **Cloud & Integrations**
-* **Firebase** — Cloud Storage (evidence clips) & Authentication
+* **Supabase** — Cloud Storage (evidence clips) & PostgreSQL Database
 * **Twilio** — Automated SMS and Programmable Voice APIs
 
 ---
@@ -61,9 +61,9 @@ When a threat or violent behavior is detected, the system instantly auto-records
 2. **AI Inference:** The YOLOv11n model analyzes frames for violent behavior patterns.
 3. **Threshold Filtering:** Detections above a confidence threshold trigger the alert pipeline.
 4. **Evidence Recording:** OpenCV buffers the frames around the incident and saves it as an `.mp4` clip.
-5. **Cloud Sync:** The clip (with auto-generated thumbnails) is pushed to Firebase Storage.
+5. **Cloud Sync:** The clip (with auto-generated thumbnails) is pushed to Supabase Cloud Storage.
 6. **Alert Dispatch:** Twilio fires an SMS and Voice Call to emergency contacts.
-7. **Dashboard Update:** The React frontend updates in real-time, showing the new alert and clip link.
+7. **Dashboard Update:** The React frontend updates in real-time, fetching the new alert and video CDN link.
 
 ---
 
@@ -75,14 +75,14 @@ RiskVision/
 │   ├── eye-view.py                 # Main backend application
 │   ├── requirements.txt            # Python dependencies
 │   ├── best.pt                     # Trained YOLOv11n model weights
-│   ├── alert_log.json              # Local alert history log
+│   ├── alert_log.json              # Local alert history fallback log
+│   ├── users.json                  # Authentication credentials
 │   └── .env                        # Backend environment variables
 │
 ├── EyeView-frontend/               # React + Vite Monitoring Dashboard
 │   ├── src/
 │   │   ├── components/             # Reusable UI (Alerts, Video Feed, Navbar)
-│   │   ├── pages/                  # Dashboard, History, Alerts, Login
-│   │   └── utils/                  # Firebase SDK config & API helpers
+│   │   └── pages/                  # Dashboard, History, Alerts, Login
 │   ├── package.json                # Frontend dependencies
 │   └── .env                        # Frontend environment variables
 │
@@ -96,7 +96,7 @@ RiskVision/
 ### Prerequisites
 - **Python 3.8+**
 - **Node.js 18+** & npm
-- A **Firebase Account** (Storage & Auth enabled)
+- A **Supabase Account** (Storage & Database)
 - A **Twilio Account**
 
 ### 1. Clone the Repository
@@ -119,7 +119,6 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 ```
-> **Note:** Place your Firebase Admin SDK JSON file inside the `Backend/` directory and configure your `.env`.
 
 ### 3. Frontend Setup (React/Node)
 ```bash
@@ -135,28 +134,23 @@ You need to create two `.env` files.
 
 **1. `Backend/.env`**
 ```env
+# Twilio SMS Configuration
 TWILIO_ACCOUNT_SID=your_twilio_account_sid
 TWILIO_AUTH_TOKEN=your_twilio_auth_token
 TWILIO_PHONE_NUMBER=+1XXXXXXXXXX
 ADMIN_PHONE_NUMBER=+91XXXXXXXXXX
 
-FIREBASE_CREDENTIALS_PATH=./your-firebase-adminsdk.json
-FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+# Supabase Configuration
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_SERVICE_KEY=your_supabase_service_role_key
 
-DETECTION_CONFIDENCE=0.65
-ALERT_COOLDOWN_SECONDS=30
-CAMERA_SOURCE=0  # 0 for webcam, or use RTSP URL
+# JWT Configuration
+JWT_SECRET_KEY=your-secure-jwt-secret-key
 ```
 
 **2. `EyeView-frontend/.env`**
 ```env
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-
+# Backend API URL
 VITE_API_BASE_URL=http://localhost:5000
 ```
 
