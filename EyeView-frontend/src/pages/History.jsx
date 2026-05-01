@@ -80,8 +80,13 @@ const HistorySection = () => {
         // We prepend the backend's base URL to create a full, playable path for the video player.
         const clipsWithUrls = clipsData.map((clip) => ({
           ...clip,
-          videoUrl: `http://localhost:5000${clip.url}`,
-          thumbnailUrl: clip.thumbnail_url ? `http://localhost:5000${clip.thumbnail_url}` : null,
+          // Supabase URLs are absolute (https://...), local fallback URLs are relative (/history_clips/...)
+          videoUrl: clip.url
+            ? (clip.url.startsWith('http') ? clip.url : `http://localhost:5000${clip.url}`)
+            : null,
+          thumbnailUrl: clip.thumbnail_url
+            ? (clip.thumbnail_url.startsWith('http') ? clip.thumbnail_url : `http://localhost:5000${clip.thumbnail_url}`)
+            : null,
         }));
 
         setHistoryClips(clipsWithUrls);

@@ -236,7 +236,7 @@ const Dashboard = () => {
                         <div className="w-2 h-2 bg-red-400 rounded-full mt-2 animate-pulse"></div>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-gray-200">Violence Detected</p>
-                          <p className="text-xs text-gray-400 mt-1">{alert.time}</p>
+                          <p className="text-xs text-gray-400 mt-1">{alert.timestamp}</p>
                           <p className="text-xs text-gray-500">Confidence: {alert.confidence}%</p>
                           <p className="text-xs text-gray-500">{alert.location}</p>
                         </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaExclamationTriangle, FaMapMarkerAlt, FaClock, FaSync, FaPlay, FaVideo, FaBell } from "react-icons/fa";
+import { FaExclamationTriangle, FaMapMarkerAlt, FaClock, FaSync, FaPlay, FaVideo, FaBell, FaTrash } from "react-icons/fa";
 import axios from 'axios';
 
 const Alerts = () => {
@@ -18,6 +18,17 @@ const Alerts = () => {
       console.error("Error fetching alerts:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!id || !window.confirm("Are you sure you want to delete this alert? It will also be removed from history.")) return;
+    try {
+      await axios.delete(`http://localhost:5000/alerts/${id}`);
+      setAlerts(prev => prev.filter(a => a.id !== id));
+    } catch (err) {
+      console.error("Error deleting alert:", err);
+      alert("Failed to delete alert");
     }
   };
 
@@ -112,6 +123,15 @@ const Alerts = () => {
                         </div>
                       </div>
                     </div>
+                    {alert.id && (
+                      <button
+                        onClick={() => handleDelete(alert.id)}
+                        className="text-gray-400 hover:text-red-500 transition-colors p-2 bg-gray-700/50 hover:bg-gray-700 rounded-lg"
+                        title="Delete Alert"
+                      >
+                        <FaTrash />
+                      </button>
+                    )}
                   </div>
 
                   {/* Alert Details */}
@@ -191,10 +211,20 @@ const Alerts = () => {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full mt-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white py-3 px-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2"
+                    onClick={() => {
+                      if (alert.video_url && !videoErrors.has(alert.video_url)) {
+                        window.open(alert.video_url, '_blank');
+                      }
+                    }}
+                    className={`w-full mt-4 py-3 px-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+                      !alert.video_url || videoErrors.has(alert.video_url)
+                        ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white'
+                    }`}
+                    disabled={!alert.video_url || videoErrors.has(alert.video_url)}
                   >
                     <FaVideo />
-                    View Full Incident
+                    {videoErrors.has(alert.video_url) ? 'Video Unavailable' : 'View Full Incident'}
                   </motion.button>
                 </motion.div>
               );

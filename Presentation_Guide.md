@@ -22,7 +22,7 @@ cd "c:\Users\Lucky Bhoir\EyeView_v2\Backend"
 # pip install -r requirements.txt
 
 # 4. Start the Python Flask server
-python eye-view.py
+ n
 ```
 *Wait until you see `Running on http://127.0.0.1:5000` or `Running on http://localhost:5000` in the console.*
 
