@@ -103,23 +103,39 @@ const Alerts = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ scale: 1.02, y: -5 }}
-                  className="bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl p-6 shadow-2xl border border-red-500/20 hover:border-red-400/40 transition-all duration-300 overflow-hidden"
+                  className={`bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl p-6 shadow-2xl border transition-all duration-300 overflow-hidden ${
+                    alert.tier === 3
+                      ? "border-red-500/50 hover:border-red-400"
+                      : alert.tier === 2
+                      ? "border-orange-500/50 hover:border-orange-400"
+                      : "border-blue-500/40 hover:border-blue-400"
+                  }`}
                 >
                   {/* Alert Header */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="p-3 bg-red-500/20 rounded-xl">
-                        <FaExclamationTriangle className="text-red-400 text-xl" />
+                      <div className={`p-3 rounded-xl ${
+                        alert.tier === 3 ? "bg-red-500/20 text-red-400" : alert.tier === 2 ? "bg-orange-500/20 text-orange-400" : "bg-blue-500/20 text-blue-400"
+                      }`}>
+                        <FaExclamationTriangle className="text-xl" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-white">
-                          {alert.alert_type || "Violence Detected"}
-                        </h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-xl font-bold text-white">
+                            {alert.alert_type || "Threat Detected"}
+                          </h3>
+                        </div>
                         <div className="flex items-center gap-2 mt-1">
-                          <div className={`w-2 h-2 rounded-full ${alert.notified ? 'bg-green-400 animate-pulse' : 'bg-yellow-400'}`}></div>
-                          <span className={`text-sm font-medium ${alert.notified ? 'text-green-400' : 'text-yellow-400'}`}>
-                            {alert.notified ? "Notified" : "Processing"}
+                          <span className={`text-xs px-2 py-0.5 rounded font-bold uppercase tracking-wider ${
+                            alert.tier === 3 ? "bg-red-500/30 text-red-300 border border-red-500/40" : alert.tier === 2 ? "bg-orange-500/30 text-orange-300 border border-orange-500/40" : "bg-blue-500/30 text-blue-300 border border-blue-500/40"
+                          }`}>
+                            TIER {alert.tier || 1}: {alert.tier_label || "ALERT"}
                           </span>
+                          {alert.suspect_id && alert.suspect_id !== "N/A" && (
+                            <span className="text-xs px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 font-semibold">
+                              {alert.suspect_id}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -146,18 +162,27 @@ const Alerts = () => {
                       <span className="text-sm">{alert.location || "Unknown Location"}</span>
                     </div>
 
-                    {alert.confidence && (
+                    {alert.confidence !== undefined && (
                       <div className="flex items-center gap-3">
-                        <div className="text-yellow-400 text-sm font-medium">Confidence:</div>
+                        <div className="text-gray-300 text-sm font-medium">Threat Score:</div>
                         <div className="flex-1 bg-gray-600 rounded-full h-2">
                           <div
-                            className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full transition-all duration-500"
-                            style={{ width: `${alert.confidence * 100}%` }}
+                            className={`h-2 rounded-full transition-all duration-500 ${
+                              alert.tier === 3 ? "bg-gradient-to-r from-orange-500 to-red-500" : "bg-gradient-to-r from-blue-400 to-yellow-400"
+                            }`}
+                            style={{ width: `${(alert.confidence <= 1.0 ? alert.confidence * 100 : alert.confidence)}%` }}
                           ></div>
                         </div>
-                        <span className="text-yellow-400 text-sm font-bold">
-                          {(alert.confidence * 100).toFixed(1)}%
+                        <span className="text-white text-sm font-bold">
+                          {(alert.confidence <= 1.0 ? alert.confidence * 100 : alert.confidence).toFixed(0)}%
                         </span>
+                      </div>
+                    )}
+
+                    {alert.audio_confidence !== undefined && alert.audio_confidence > 0 && (
+                      <div className="text-xs text-blue-300 flex items-center justify-between bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-500/20">
+                        <span>Acoustic Distress Confirmed:</span>
+                        <span className="font-bold">{(alert.audio_confidence * 100).toFixed(0)}%</span>
                       </div>
                     )}
                   </div>
